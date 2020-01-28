@@ -6,20 +6,24 @@ defmodule SaitamaWeb.Live.Timer do
     socket =
       socket
       |> assign(:intervals, [])
-      |> assign(:status, "stopped")
+      |> assign(:status, "pending")
       |> assign(:current_interval, 0)
 
     {:ok, socket}
   end
 
-  def status_message("active"), do: "work!"
-  def status_message("stopped"), do: "rest!"
-  def status_message("finished"), do: "all done"
-
   def control_buttons("stopped") do
     ~E"""
     <button phx-click="start">start</button>
     <button phx-click="reset">reset</button>
+    <button phx-click="clear">clear</button>
+    """
+  end
+
+  def control_buttons("ready") do
+    ~E"""
+    <button phx-click="start">start</button>
+    <button phx-click="clear">clear</button>
     """
   end
 
@@ -32,32 +36,51 @@ defmodule SaitamaWeb.Live.Timer do
   def control_buttons("finished") do
     ~E"""
     <button phx-click="reset">reset</button>
+    <button phx-click="clear">clear</button>
     """
+  end
+
+  def control_buttons(_), do: nil
+
+  def format_min_secs(secs) when is_binary(secs),
+    do: secs |> String.to_integer() |> format_min_secs
+
+  def format_min_secs(secs) when is_integer(secs) do
+    {min, rem_sec} =
+      case secs do
+        n when n < 60 -> {0, secs}
+        _ -> {Integer.floor_div(secs, 60), rem(secs, 60)}
+      end
+
+    "#{min}:#{rem_sec |> Integer.to_string() |> String.pad_leading(2, "0")}"
   end
 
   def render(assigns) do
     ~L"""
       <%= for %{"label" => label, "duration" => duration, "remaining" => remaining} <- @intervals do %>
-        <p><%= label %>: <%= duration %> (<%= remaining %>)</p>
+        <dt><%= label %></dt>
+        <dd><%= format_min_secs(duration) %> (<%= format_min_secs(remaining) %>)</dd>
       <% end %>
 
-      <p>
-        <%= status_message(@status) %>
-      </p>
+      <%= control_buttons(@status) %>
 
-      <%= if @intervals |> Enum.any? do %>
-        <%= control_buttons(@status) %>
+      <%= if @status == "pending" || @status == "ready" do %>
+        <hr />
+          <form phx-submit="load_intervals">
+            <textarea name="intervals_json"><%= @intervals |> Enum.map(& Map.drop(&1, ["remaining"])) |> Jason.encode! %></textarea>
+            <input type="submit" value="Load">
+          </form>
+
+        <hr />
+
+        <form phx-submit="add_interval">
+          <label>label<label>
+          <input type="text" name="label" required />
+          <label>duration in seconds<label>
+          <input type="number" name="duration" min="1" max="3599" required />
+          <input type="submit" value="Add">
+        </form>
       <% end %>
-
-      <hr />
-
-      <form phx-submit="add_interval">
-        <label>label<label>
-        <input type="text" name="label" required />
-        <label>duration in seconds<label>
-        <input type="number" name="duration" min="1" required />
-        <input type="submit" value="Add">
-      </form>
     """
   end
 
@@ -68,6 +91,27 @@ defmodule SaitamaWeb.Live.Timer do
         :intervals,
         [build_interval(event) | socket.assigns.intervals] |> Enum.reverse()
       )
+      |> assign(:status, "ready")
+
+    {:noreply, socket}
+  end
+
+  def handle_event("load_intervals", %{"intervals_json" => json}, socket) do
+    socket =
+      assign(
+        socket,
+        :intervals,
+        Jason.decode!(json)
+      )
+      |> assign(:status, "ready")
+
+    {:noreply, socket}
+  end
+
+  def handle_event("clear", _event, socket) do
+    socket =
+      assign(socket, :intervals, [])
+      |> assign(:status, "pending")
 
     {:noreply, socket}
   end
@@ -95,7 +139,7 @@ defmodule SaitamaWeb.Live.Timer do
 
     socket =
       assign(socket, :intervals, new_intervals)
-      |> assign(:status, "stopped")
+      |> assign(:status, "ready")
       |> assign(:current_interval, 0)
 
     {:noreply, socket}

@@ -1,24 +1,52 @@
 defmodule SaitamaWeb.Live.Timer do
   use Phoenix.LiveView
+  use Phoenix.HTML
 
-  def mount(_session, socket) do
+  def mount(_params, _session, socket) do
     socket =
       socket
       |> assign(:intervals, [])
-      |> assign(:control, "start")
+      |> assign(:status, "stopped")
       |> assign(:current_interval, 0)
 
     {:ok, socket}
   end
 
+  def status_message("active"), do: "work!"
+  def status_message("stopped"), do: "rest!"
+  def status_message("finished"), do: "all done"
+
+  def control_buttons("stopped") do
+    ~E"""
+    <button phx-click="start">start</button>
+    <button phx-click="reset">reset</button>
+    """
+  end
+
+  def control_buttons("active") do
+    ~E"""
+    <button phx-click="stop">stop</button>
+    """
+  end
+
+  def control_buttons("finished") do
+    ~E"""
+    <button phx-click="reset">reset</button>
+    """
+  end
+
   def render(assigns) do
     ~L"""
-      <%= for %{"label" => label, "duration" => duration} <- @intervals do %>
-        <p><%= label %>: <%= duration %></p>
+      <%= for %{"label" => label, "duration" => duration, "remaining" => remaining} <- @intervals do %>
+        <p><%= label %>: <%= duration %> (<%= remaining %>)</p>
       <% end %>
 
+      <p>
+        <%= status_message(@status) %>
+      </p>
+
       <%= if @intervals |> Enum.any? do %>
-        <button phx-click=<%= @control %>><%= @control %></button>
+        <%= control_buttons(@status) %>
       <% end %>
 
       <hr />
@@ -26,24 +54,19 @@ defmodule SaitamaWeb.Live.Timer do
       <form phx-submit="add_interval">
         <label>label<label>
         <input type="text" name="label" required />
-        <label>duration<label>
+        <label>duration in seconds<label>
         <input type="number" name="duration" min="1" required />
         <input type="submit" value="Add">
       </form>
     """
   end
 
-  def handle_event(
-        "add_interval",
-        %{"label" => _label, "duration" => _duration} = new_interval,
-        socket
-      ) do
+  def handle_event("add_interval", event, socket) do
     socket =
       assign(
         socket,
         :intervals,
-        [new_interval |> Map.update!("duration", &String.to_integer/1) | socket.assigns.intervals]
-        |> Enum.reverse()
+        [build_interval(event) | socket.assigns.intervals] |> Enum.reverse()
       )
 
     {:noreply, socket}
@@ -53,51 +76,66 @@ defmodule SaitamaWeb.Live.Timer do
     {:ok, timer} = :timer.send_interval(1000, self(), :tick)
 
     socket =
-      assign(socket, :control, "stop")
+      assign(socket, :status, "active")
       |> assign(:timer, timer)
 
     {:noreply, socket}
   end
 
   def handle_event("stop", _event, socket) do
-    send(self(), :stop)
+    :timer.cancel(socket.assigns.timer)
+
+    {:noreply, assign(socket, :status, "stopped")}
+  end
+
+  def handle_event("reset", _event, socket) do
+    new_intervals =
+      socket.assigns.intervals
+      |> Enum.map(&build_interval/1)
+
+    socket =
+      assign(socket, :intervals, new_intervals)
+      |> assign(:status, "stopped")
+      |> assign(:current_interval, 0)
 
     {:noreply, socket}
   end
 
   def handle_info(:tick, socket) do
-    if !(socket.assigns.intervals |> Enum.any?(&(&1["duration"] > 0))) do
-      send(self(), :stop)
-    end
-
-    current_interval = socket.assigns.current_interval
-
-    new_intervals =
-      socket.assigns.intervals
-      |> Enum.with_index()
-      |> Enum.map(fn {interval, index} ->
-        if index == current_interval do
-          interval |> Map.update!("duration", &(&1 - 1))
-        else
-          interval
-        end
-      end)
-
     socket =
-      case new_intervals |> Enum.at(current_interval) do
-        %{"duration" => 0} -> assign(socket, :current_interval, current_interval + 1)
-        _ -> socket
+      if !(socket.assigns.intervals |> Enum.any?(&(&1["remaining"] > 0))) do
+        :timer.cancel(socket.assigns.timer)
+
+        assign(socket, :status, "finished")
+      else
+        current_interval = socket.assigns.current_interval
+
+        new_intervals =
+          socket.assigns.intervals
+          |> Enum.with_index()
+          |> Enum.map(fn {interval, index} ->
+            if index == current_interval do
+              interval |> Map.update!("remaining", &(&1 - 1))
+            else
+              interval
+            end
+          end)
+
+        case new_intervals |> Enum.at(current_interval) do
+          %{"remaining" => 0} -> assign(socket, :current_interval, current_interval + 1)
+          _ -> socket
+        end
+        |> assign(:intervals, new_intervals)
       end
-      |> assign(:intervals, new_intervals)
 
     {:noreply, socket}
   end
 
-  def handle_info(:stop, socket) do
-    :timer.cancel(socket.assigns.timer)
-
-    socket = assign(socket, :control, "start")
-
-    {:noreply, socket}
+  defp build_interval(%{"label" => label, "duration" => duration}) do
+    %{
+      "label" => label,
+      "duration" => duration,
+      "remaining" => String.to_integer(duration)
+    }
   end
 end

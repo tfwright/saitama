@@ -16,50 +16,7 @@ defmodule SaitamaWeb.Live.Timer do
   end
 
   def render(assigns) do
-    ~L"""
-      <%= for {%{"label" => label, "intervals" => intervals, "repeat" => repeat}, set_index} <- @sets |> Enum.with_index do %>
-        <h3>
-          <%= label %>
-          <%= if repeat > 0 do %>
-          <small>x<%= repeat %></small>
-          <% end %>
-        </h3>
-
-        <%= for %{"label" => label, "duration" => duration, "remaining" => remaining} <- intervals do %>
-          <dt><%= label %></dt>
-          <dd><%= format_min_secs(duration) %> (<%= format_min_secs(remaining) %>)</dd>
-        <% end %>
-
-        <%= if @status == "pending" do %>
-          <form phx-submit="add_interval">
-            <label>label</label>
-            <input type="text" name="label" required />
-            <label>duration in seconds</label>
-            <input type="number" name="duration" min="1" max="3599" required />
-            <input type="hidden" name="set_index" value="<%= set_index %>" />
-            <input type="submit" value="Add interval">
-          </form>
-        <% end %>
-      <% end %>
-
-      <%= if @sets |> Enum.any?(fn %{"intervals" => intervals} -> Enum.any?(intervals) end) && @status == "pending" do %>
-        <button phx-click="ready">ready</button>
-      <% end %>
-
-      <%= control_buttons(@status) %>
-
-      <%= if @status == "pending" do %>
-        <hr />
-
-        <form phx-submit="add_set">
-          <label>label</label>
-          <input type="text" name="label" required />
-          <label>repeat</label>
-          <input type="number" name="repeat" required value="1" max="9" />
-          <input type="submit" value="Add set">
-        </form>
-      <% end %>
-    """
+    SaitamaWeb.TimerView.render("index.html", assigns)
   end
 
   def handle_event("add_set", params, socket) do
@@ -199,49 +156,6 @@ defmodule SaitamaWeb.Live.Timer do
       end
 
     {:noreply, socket}
-  end
-
-  def control_buttons("stopped") do
-    ~E"""
-    <button phx-click="start">start</button>
-    <button phx-click="reset">reset</button>
-    <button phx-click="clear">clear</button>
-    """
-  end
-
-  def control_buttons("ready") do
-    ~E"""
-    <button phx-click="start">start</button>
-    <button phx-click="clear">clear</button>
-    """
-  end
-
-  def control_buttons("active") do
-    ~E"""
-    <button phx-click="stop">stop</button>
-    """
-  end
-
-  def control_buttons("finished") do
-    ~E"""
-    <button phx-click="reset">reset</button>
-    <button phx-click="clear">clear</button>
-    """
-  end
-
-  def control_buttons(_), do: nil
-
-  def format_min_secs(secs) when is_binary(secs),
-    do: secs |> String.to_integer() |> format_min_secs
-
-  def format_min_secs(secs) when is_integer(secs) do
-    {min, rem_sec} =
-      case secs do
-        n when n < 60 -> {0, secs}
-        _ -> {Integer.floor_div(secs, 60), rem(secs, 60)}
-      end
-
-    "#{min}:#{rem_sec |> Integer.to_string() |> String.pad_leading(2, "0")}"
   end
 
   defp build_interval(%{"label" => label, "duration" => duration}) do

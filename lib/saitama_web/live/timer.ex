@@ -66,12 +66,6 @@ defmodule SaitamaWeb.Live.Timer do
 
       <%= if @status == "pending" || @status == "ready" do %>
         <hr />
-          <form phx-submit="load_intervals">
-            <textarea name="intervals_json"><%= @intervals |> Enum.map(& Map.drop(&1, ["remaining"])) |> Jason.encode! %></textarea>
-            <input type="submit" value="Load">
-          </form>
-
-        <hr />
 
         <form phx-submit="add_interval">
           <label>label<label>
@@ -90,18 +84,6 @@ defmodule SaitamaWeb.Live.Timer do
         socket,
         :intervals,
         [build_interval(event) | socket.assigns.intervals] |> Enum.reverse()
-      )
-      |> assign(:status, "ready")
-
-    {:noreply, socket}
-  end
-
-  def handle_event("load_intervals", %{"intervals_json" => json}, socket) do
-    socket =
-      assign(
-        socket,
-        :intervals,
-        Jason.decode!(json)
       )
       |> assign(:status, "ready")
 

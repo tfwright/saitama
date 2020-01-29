@@ -1,12 +1,12 @@
-<%= for {%{"label" => label, "intervals" => intervals, "repeat" => repeat}, set_index} <- @sets |> Enum.with_index do %>
+<%= for {%{"label" => label, "intervals" => intervals, "reps" => reps}, set_index} <- @sets |> Enum.with_index do %>
   <h3>
     <%= label %>
-    <%= if repeat > 0 do %>
-    <small>x<%= repeat %></small>
+    <%= if reps > 0 do %>
+    <small>x<%= reps %></small>
     <% end %>
   </h3>
 
-  <%= for %{"label" => label, "duration" => duration, "remaining" => remaining} <- intervals do %>
+  <%= for %{"label" => label, "duration" => duration, "remaining_duration" => remaining} <- intervals do %>
     <dt><%= label %></dt>
     <dd><%= format_min_secs(duration) %> (<%= format_min_secs(remaining) %>)</dd>
   <% end %>
@@ -35,8 +35,8 @@
   <form phx-submit="add_set">
     <label>label</label>
     <input type="text" name="label" required />
-    <label>repeat</label>
-    <input type="number" name="repeat" required value="1" max="9" />
+    <label>reps</label>
+    <input type="number" name="reps" required value="1" max="9" />
     <input type="submit" value="Add set">
   </form>
 <% end %>

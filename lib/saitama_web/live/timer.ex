@@ -115,23 +115,23 @@ defmodule SaitamaWeb.Live.Timer do
           |> Map.update!("intervals", fn intervals ->
             intervals
             |> List.update_at(current_interval, fn interval ->
-              interval |> Map.update!("remaining", &(&1 - 1))
+              interval |> Map.update!("remaining_duration", &(&1 - 1))
             end)
           end)
 
         {set_to_advance, new_set, new_interval} =
           set_to_advance
           |> Map.fetch!("intervals")
-          |> Enum.find_index(&(Map.get(&1, "remaining") > 0))
+          |> Enum.find_index(&(Map.get(&1, "remaining_duration") > 0))
           |> case do
             nil ->
-              case Map.fetch!(set_to_advance, "remaining") do
+              case Map.fetch!(set_to_advance, "remaining_reps") do
                 0 ->
                   {set_to_advance, current_set + 1}
 
                 n ->
                   set_to_advance
-                  |> Map.replace!("remaining", n - 1)
+                  |> Map.replace!("remaining_reps", n - 1)
                   |> Map.update!("intervals", fn intervals ->
                     intervals |> Enum.map(&build_interval/1)
                   end)
@@ -162,23 +162,23 @@ defmodule SaitamaWeb.Live.Timer do
     %{
       "label" => label,
       "duration" => duration,
-      "remaining" => String.to_integer(duration)
+      "remaining_duration" => String.to_integer(duration)
     }
   end
 
-  defp build_set(%{"label" => label, "repeat" => repeat, "intervals" => intervals}) do
+  defp build_set(%{"label" => label, "reps" => reps, "intervals" => intervals}) do
     %{
       "label" => label,
-      "repeat" => repeat,
+      "reps" => reps,
       "intervals" => intervals |> Enum.map(&build_interval/1),
-      "remaining" => String.to_integer(repeat) - 1
+      "remaining_reps" => String.to_integer(reps) - 1
     }
   end
 
   defp intervals_remaining?(sets) do
     sets
-    |> Enum.any?(fn %{"remaining" => remaining, "intervals" => intervals} ->
-      remaining > 0 || Enum.any?(intervals, &(Map.get(&1, "remaining") > 0))
+    |> Enum.any?(fn %{"remaining_reps" => remaining, "intervals" => intervals} ->
+      remaining > 0 || Enum.any?(intervals, &(Map.get(&1, "remaining_duration") > 0))
     end)
   end
 end

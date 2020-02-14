@@ -40,7 +40,9 @@ defmodule Saitama.MixProject do
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
       {:phoenix_live_view, "~> 0.6.0"},
-      {:distillery, "~> 2.1"}
+      {:distillery, "~> 2.1"},
+      {:ecto, "~> 3.0"},
+      {:phoenix_ecto, "~> 4.0"}
     ]
   end
 end

@@ -1,75 +1,26 @@
 defmodule SaitamaWeb.Live.Timer do
-  require Logger
-
   use Phoenix.LiveView
-  use Phoenix.HTML
 
-  def mount(_params, _session, socket) do
+  def render(assigns) do
+    SaitamaWeb.TimerView.render("timer.html", assigns)
+  end
+
+  def mount(%{"uuid" => uuid}, _session, socket) do
+    workout = Saitama.WorkoutStore.get(uuid)
+
     socket =
       socket
-      |> assign(:sets, [])
-      |> assign(:status, "pending")
+      |> assign(:name, workout.name)
+      |> assign(:sets, extract_timer_data(workout.sets))
       |> assign(:current_set, 0)
       |> assign(:current_interval, 0)
+      |> assign(:status, "ready")
 
     {:ok, socket}
   end
 
-  def render(assigns) do
-    SaitamaWeb.TimerView.render("index.html", assigns)
-  end
-
-  def handle_event("add_set", params, socket) do
-    socket =
-      assign(
-        socket,
-        :sets,
-        [build_set(params |> Map.put("intervals", [])) | socket.assigns.sets]
-        |> Enum.reverse()
-      )
-
-    {:noreply, socket}
-  end
-
-  def handle_event("add_interval", %{"set_index" => index} = interval, socket) do
-    socket =
-      assign(
-        socket,
-        :sets,
-        socket.assigns.sets
-        |> List.update_at(index |> String.to_integer(), fn set ->
-          set
-          |> Map.get_and_update(
-            "intervals",
-            &{&1, [build_interval(interval) | &1] |> Enum.reverse()}
-          )
-          |> elem(1)
-        end)
-      )
-
-    {:noreply, socket}
-  end
-
-  def handle_event("ready", _event, socket) do
-    socket =
-      socket
-      |> assign(:status, "ready")
-
-    {:noreply, socket}
-  end
-
-  def handle_event("clear", _event, socket) do
-    socket =
-      assign(socket, :sets, [])
-      |> assign(:current_set, 0)
-      |> assign(:current_interval, 0)
-      |> assign(:status, "pending")
-
-    {:noreply, socket}
-  end
-
   def handle_event("start", _event, socket) do
-    {:ok, timer} = :timer.send_interval(1000, self(), :tick)
+    {:ok, timer} = :timer.send_interval(1000, :tick)
 
     socket =
       assign(socket, :status, "active")
@@ -101,7 +52,6 @@ defmodule SaitamaWeb.Live.Timer do
   def handle_info(:tick, socket) do
     socket =
       if !intervals_remaining?(socket.assigns.sets) do
-        Logger.info("finished: #{socket.assigns.sets |> Jason.encode!()}")
         :timer.cancel(socket.assigns.timer)
 
         assign(socket, :status, "finished")
@@ -165,7 +115,7 @@ defmodule SaitamaWeb.Live.Timer do
           interval |> Map.replace!("remaining_duration", 0)
         end)
       end)
-      |> Map.replace!("remaining_rest", Map.fetch!(set, "rest") |> String.to_integer())
+      |> Map.replace!("remaining_rest", Map.fetch!(set, "rest"))
 
     {set, current_set, current_interval}
   end
@@ -224,12 +174,9 @@ defmodule SaitamaWeb.Live.Timer do
       end
   end
 
-  defp build_interval(%{"label" => label, "duration" => duration}) do
-    %{
-      "label" => label,
-      "duration" => duration,
-      "remaining_duration" => String.to_integer(duration)
-    }
+  defp extract_timer_data(sets) do
+    sets
+    |> Enum.map(&build_set/1)
   end
 
   defp build_set(%{"label" => label, "reps" => reps, "rest" => rest, "intervals" => intervals}) do
@@ -238,9 +185,28 @@ defmodule SaitamaWeb.Live.Timer do
       "reps" => reps,
       "rest" => rest,
       "intervals" => intervals |> Enum.map(&build_interval/1),
-      "remaining_reps" => String.to_integer(reps) - 1,
+      "remaining_reps" => reps - 1,
       "remaining_rest" => 0
     }
+  end
+
+  defp build_set(struct), do: stringify_keys(struct) |> build_set
+
+  defp build_interval(%{"label" => label, "duration" => duration}) do
+    %{
+      "label" => label,
+      "duration" => duration,
+      "remaining_duration" => duration
+    }
+  end
+
+  defp build_interval(struct), do: stringify_keys(struct) |> build_interval
+
+  defp stringify_keys(struct) do
+    struct
+    |> Map.from_struct()
+    |> Enum.map(fn {k, v} -> {Atom.to_string(k), v} end)
+    |> Enum.into(%{})
   end
 
   defp intervals_remaining?(sets) do

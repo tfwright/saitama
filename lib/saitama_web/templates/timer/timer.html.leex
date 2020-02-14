@@ -1,0 +1,22 @@
+<div id="timer">
+  <h1><%= @name %></h1>
+
+  <%= for {%{"label" => label, "intervals" => intervals, "reps" => reps, "remaining_rest" => remaining_rest}, set_index} <- @sets |> Enum.with_index do %>
+    <h3>
+      <%= label %>
+      <%= if reps > 0 do %>
+      <small>x<%= reps %></small>
+      <% end %>
+    </h3>
+
+    <%= for {%{"label" => label, "duration" => duration, "remaining_duration" => remaining}, i} <- intervals |> Enum.with_index do %>
+      <dt><%= label %></dt>
+      <dd><%= format_min_secs(duration) %> (<%= format_min_secs(remaining) %>)</dd>
+      <%= if @current_set == set_index && @current_interval == i && remaining_rest > 0 do %>
+        <dd>Rest: <%= remaining_rest %></dd>
+      <% end %>
+    <% end %>
+  <% end %>
+
+  <%= control_buttons(@status) %>
+</div>

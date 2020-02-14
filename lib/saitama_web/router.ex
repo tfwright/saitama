@@ -17,7 +17,8 @@ defmodule SaitamaWeb.Router do
   scope "/", SaitamaWeb do
     pipe_through :browser
 
-    live "/", Live.Timer
+    live "/", Live.WorkoutForm
+    live "/:uuid", Live.Timer
   end
 
   # Other scopes may use custom stacks.

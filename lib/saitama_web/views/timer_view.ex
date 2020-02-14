@@ -3,29 +3,26 @@ defmodule SaitamaWeb.TimerView do
 
   def control_buttons("stopped") do
     ~E"""
-    <button phx-click="start">start</button>
-    <button phx-click="reset">reset</button>
-    <button phx-click="clear">clear</button>
+    <button phx-click="start" phx-target="#timer">start</button>
+    <button phx-click="reset" phx-target="#timer">reset</button>
     """
   end
 
   def control_buttons("ready") do
     ~E"""
-    <button phx-click="start">start</button>
-    <button phx-click="clear">clear</button>
+    <button phx-click="start" phx-target="#timer">start</button>
     """
   end
 
   def control_buttons("active") do
     ~E"""
-    <button phx-click="stop">stop</button>
+    <button phx-click="stop" phx-target="#timer">stop</button>
     """
   end
 
   def control_buttons("finished") do
     ~E"""
-    <button phx-click="reset">reset</button>
-    <button phx-click="clear">clear</button>
+    <button phx-click="reset" phx-target="#timer">reset</button>
     """
   end
 

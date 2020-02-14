@@ -8,10 +8,8 @@ defmodule Saitama.Application do
   def start(_type, _args) do
     # List all child processes to be supervised
     children = [
-      # Start the endpoint when the application starts
-      SaitamaWeb.Endpoint
-      # Starts a worker by calling: Saitama.Worker.start_link(arg)
-      # {Saitama.Worker, arg},
+      SaitamaWeb.Endpoint,
+      {Saitama.WorkoutStore, []}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

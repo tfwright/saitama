@@ -113,8 +113,13 @@ defmodule SaitamaWeb.Live.Timer do
           socket.assigns.sets
           |> Enum.at(current_set)
 
+        interval_to_advance =
+          set_to_advance
+          |> Map.fetch!("intervals")
+          |> Enum.at(current_interval)
+
         {advanced_set, new_set, new_interval} =
-          advance(set_to_advance, current_set, current_interval)
+          advance(set_to_advance, current_set, interval_to_advance, current_interval)
 
         new_sets =
           socket.assigns.sets
@@ -129,15 +134,49 @@ defmodule SaitamaWeb.Live.Timer do
     {:noreply, socket}
   end
 
-  defp advance(%{"remaining_rest" => rest} = set, current_set, current_interval) when rest > 0 do
-    set
-    |> Map.update!("remaining_rest", &(&1 - 1))
-    |> List.wrap()
-    |> Enum.concat([current_set, current_interval])
-    |> List.to_tuple()
+  defp advance(%{"remaining_rest" => rest} = set, current_set, interval, current_interval)
+       when rest > 0 do
+    set =
+      set
+      |> Map.update!("remaining_rest", &(&1 - 1))
+
+    {set, current_set, current_interval}
   end
 
-  defp advance(set, current_set, current_interval) do
+  defp advance(%{"remaining_rest" => 1} = set, current_set, interval, current_interval) do
+    set =
+      set
+      |> Map.replace!("remaining_rest", 0)
+
+    advance(set, current_set, interval, current_interval)
+  end
+
+  defp advance(
+         set,
+         current_set,
+         %{"remaining_duration" => 1} = interval,
+         current_interval
+       ) do
+    set =
+      set
+      |> Map.update!("intervals", fn intervals ->
+        intervals
+        |> List.update_at(current_interval, fn interval ->
+          interval |> Map.replace!("remaining_duration", 0)
+        end)
+      end)
+      |> Map.replace!("remaining_rest", Map.fetch!(set, "rest") |> String.to_integer())
+
+    {set, current_set, current_interval}
+  end
+
+  defp advance(
+         set,
+         current_set,
+         %{"remaining_duration" => remaining_duration} = interval,
+         current_interval
+       )
+       when remaining_duration > 1 do
     set =
       set
       |> Map.update!("intervals", fn intervals ->
@@ -147,33 +186,42 @@ defmodule SaitamaWeb.Live.Timer do
         end)
       end)
 
-    set
-    |> Map.fetch!("intervals")
-    |> Enum.find_index(&(Map.fetch!(&1, "remaining_duration") > 0))
-    |> case do
-      nil ->
-        set
-        |> Map.fetch!("remaining_reps")
-        |> case do
-          0 ->
-            {set, current_set + 1}
+    {set, current_set, current_interval}
+  end
 
-          n ->
-            set
-            |> Map.replace!("remaining_rest", set |> Map.fetch!("rest") |> String.to_integer())
-            |> Map.replace!("remaining_reps", n - 1)
-            |> Map.update!("intervals", fn intervals ->
-              intervals |> Enum.map(&build_interval/1)
-            end)
-            |> List.wrap()
-            |> List.to_tuple()
-            |> Tuple.append(current_set)
-        end
-        |> Tuple.append(0)
+  defp advance(
+         set,
+         current_set,
+         interval,
+         current_interval
+       ) do
+    {set, current_set, current_interval} =
+      set
+      |> Map.fetch!("intervals")
+      |> Enum.find_index(&(Map.fetch!(&1, "remaining_duration") > 0))
+      |> case do
+        nil ->
+          set
+          |> Map.fetch!("remaining_reps")
+          |> case do
+            0 ->
+              {set, current_set + 1}
 
-      i ->
-        {set, current_set, i}
-    end
+            n ->
+              set
+              |> Map.replace!("remaining_reps", n - 1)
+              |> Map.update!("intervals", fn intervals ->
+                intervals |> Enum.map(&build_interval/1)
+              end)
+              |> List.wrap()
+              |> List.to_tuple()
+              |> Tuple.append(current_set)
+          end
+          |> Tuple.append(0)
+
+        i ->
+          {set, current_set, i}
+      end
   end
 
   defp build_interval(%{"label" => label, "duration" => duration}) do

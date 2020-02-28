@@ -4,47 +4,50 @@
   <%= text_input f, :name %>
   <%= error_tag f, :name %>
 
-  <fieldset>
+  <fieldset id="set-list">
     <legend>Sets</legend>
 
     <%= error_tag f, :sets %>
 
     <%= inputs_for f, :sets, fn sets_form -> %>
-      <%= label sets_form, :label %>
-      <%= text_input sets_form, :label %>
-      <%= error_tag sets_form, :label %>
+      <div class="set-box">
+        <%= label sets_form, :label %>
+        <%= text_input sets_form, :label %>
+        <%= error_tag sets_form, :label %>
 
-      <%= label sets_form, :rest %>
-      <%= number_input sets_form, :rest %>
-      <%= error_tag sets_form, :rest %>
+        <%= label sets_form, :rest %>
+        <%= number_input sets_form, :rest %>
+        <%= error_tag sets_form, :rest %>
 
-      <%= label sets_form, :reps %>
-      <%= number_input sets_form, :reps %>
-      <%= error_tag sets_form, :reps %>
+        <%= label sets_form, :reps %>
+        <%= number_input sets_form, :reps %>
+        <%= error_tag sets_form, :reps %>
 
-      <fieldset>
-        <legend>Intervals</legend>
+        <fieldset>
+          <legend>Intervals</legend>
 
-        <%= error_tag sets_form, :intervals %>
+          <%= error_tag sets_form, :intervals %>
 
-        <%= inputs_for sets_form, :intervals, fn intervals_form -> %>
-          <%= label intervals_form, :label %>
-          <%= text_input intervals_form, :label %>
-          <%= error_tag intervals_form, :label %>
+          <%= inputs_for sets_form, :intervals, fn intervals_form -> %>
+            <div class="interval-box">
+              <%= label intervals_form, :label %>
+              <%= text_input intervals_form, :label %>
+              <%= error_tag intervals_form, :label %>
 
-          <%= label intervals_form, :duration %>
-          <%= number_input intervals_form, :duration %>
-          <%= error_tag intervals_form, :duration %>
-        <% end %>
+              <%= label intervals_form, :duration %>
+              <%= number_input intervals_form, :duration %>
+              <%= error_tag intervals_form, :duration %>
+            </div>
+          <% end %>
 
-        <div class="clearfix">
-          <a href="#" phx-click="add_interval" phx-value-set-index="<%= sets_form.index %>" class="float-right">
-            Add Interval
-          </a>
-        </div>
-      </fieldset>
+          <div class="clearfix">
+            <a href="#" phx-click="add_interval" phx-value-set-index="<%= sets_form.index %>" class="float-right">
+              Add Interval
+            </a>
+          </div>
+        </fieldset>
+      </div>
     <% end %>
-
   </fieldset>
 
   <div class="clearfix">

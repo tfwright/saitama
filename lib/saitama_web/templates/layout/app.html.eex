@@ -5,17 +5,18 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Saitama · Phoenix Framework</title>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
     <link rel="stylesheet" href="<%= Routes.static_path(@conn, "/css/app.css") %>"/>
     <%= csrf_meta_tag() %>
   </head>
   <body>
-    <header>
-      <section class="container">
-        <p><small>In the beginning, you'll wish you were dead.</small></p>
-        <h1>Saitama</h1>
+    <header class="container">
+      <section>
+        <h1 class="title is-1">Saitama</h1>
+        <p class-="subtitle">In the beginning, you'll wish you were dead.</p>
       </section>
     </header>
-    <main role="main" class="container">
+    <main role="main" class="section">
       <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>
       <p class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></p>
       <%= render @view_module, @view_template, assigns %>

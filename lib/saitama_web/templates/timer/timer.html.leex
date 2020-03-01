@@ -1,29 +1,31 @@
 <div id="timer">
-  <div class="row">
-    <div class="column"><h1><%= @name %></h1></div>
+  <div class="columns">
+    <div class="column is-one-fifth"><h1 class="title is-1"><%= @name %></h1></div>
   </div>
-  <div class="row">
-    <div class="column">
+  <div class="columns">
+    <div class="column is-one-fifth">
       <%= for {%{"label" => label, "intervals" => intervals, "reps" => reps, "remaining_rest" => remaining_rest}, set_index} <- @sets |> Enum.with_index do %>
-        <h3>
-          <%= label %>
-          <%= if reps > 0 do %>
-          <small>x<%= reps %></small>
-          <% end %>
-        </h3>
-
-        <%= for {%{"label" => label, "duration" => duration, "remaining_duration" => remaining}, i} <- intervals |> Enum.with_index do %>
-          <dt><%= label %></dt>
-          <dd><%= format_min_secs(duration) %> (<%= format_min_secs(remaining) %>)</dd>
-          <%= if @current_set == set_index && @current_interval == i && remaining_rest > 0 do %>
-            <dd>Rest: <%= remaining_rest %></dd>
-          <% end %>
-        <% end %>
+        <div class="card section">
+          <h3 class="title is-6">
+            <%= label %>
+            <%= if reps > 0 do %>
+            <small>x<%= reps %></small>
+            <% end %>
+          </h3>
+          <div class="list">
+            <%= for {%{"label" => label, "duration" => duration, "remaining_duration" => remaining}, i} <- intervals |> Enum.with_index do %>
+              <p class="list-item <%= if @current_set == set_index && @current_interval == i, do: "is-active" %>">
+                <%= label %>: <%= format_min_secs(duration) %>
+              </p>
+            <% end %>
+          </div>
+        </div>
       <% end %>
-
-      <%= control_buttons(@status) %>
+      <div class="box">
+        <%= control_buttons(@status) %>
+      </div>
     </div>
-    <div class="column <%= if Enum.at(@sets, @current_set) |> Map.get("remaining_rest") > 0, do: "resting" %>" id="clock">
+    <div class="column has-text-centered <%= if Enum.at(@sets, @current_set) |> Map.get("remaining_rest") > 0, do: "resting" %>" id="clock">
       <%= if Enum.at(@sets, @current_set) |> Map.get("remaining_rest") > 0 do %>
         <%= Enum.at(@sets, @current_set) |> Map.get("remaining_rest") |> format_min_secs %>
       <% else %>

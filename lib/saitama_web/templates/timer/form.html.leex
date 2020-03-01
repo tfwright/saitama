@@ -1,59 +1,106 @@
-<%= f = form_for @workout, "#", [phx_change: :validate, phx_submit: :save] %>
-<form>
-  <%= label f, :name %>
-  <%= text_input f, :name %>
-  <%= error_tag f, :name %>
-
-  <fieldset id="set-list">
-    <legend>Sets</legend>
-
-    <%= error_tag f, :sets %>
-
-    <%= inputs_for f, :sets, fn sets_form -> %>
-      <div class="set-box">
-        <%= label sets_form, :label %>
-        <%= text_input sets_form, :label %>
-        <%= error_tag sets_form, :label %>
-
-        <%= label sets_form, :rest %>
-        <%= number_input sets_form, :rest %>
-        <%= error_tag sets_form, :rest %>
-
-        <%= label sets_form, :reps %>
-        <%= number_input sets_form, :reps %>
-        <%= error_tag sets_form, :reps %>
-
-        <fieldset>
-          <legend>Intervals</legend>
-
-          <%= error_tag sets_form, :intervals %>
-
-          <%= inputs_for sets_form, :intervals, fn intervals_form -> %>
-            <div class="interval-box">
-              <%= label intervals_form, :label %>
-              <%= text_input intervals_form, :label %>
-              <%= error_tag intervals_form, :label %>
-
-              <%= label intervals_form, :duration %>
-              <%= number_input intervals_form, :duration %>
-              <%= error_tag intervals_form, :duration %>
-            </div>
-          <% end %>
-
-          <div class="clearfix">
-            <a href="#" phx-click="add_interval" phx-value-set-index="<%= sets_form.index %>" class="float-right">
-              Add Interval
-            </a>
-          </div>
-        </fieldset>
+<div class="container">
+  <h3 class="title is-3">Create a new workout</h3>
+  <%= f = form_for @workout, "#", [phx_change: :validate, phx_submit: :save] %>
+  <form>
+    <div class="field">
+      <%= label f, :name, class: "label" %>
+      <div class="control">
+        <%= text_input f, :name, class: "input" %>
       </div>
-    <% end %>
-  </fieldset>
+      <%= error_tag f, :name %>
+    </div>
 
-  <div class="clearfix">
-    <a href="#" phx-click="add_set" class="float-right">Add Set</a>
-  </div>
+    <fieldset id="set-list">
+      <legend class="title is-5">Sets</legend>
 
-  <%= submit "Save", disabled: !@workout.valid? %>
-  <a href="#" phx-click="reset">Reset</a>
-</form>
+      <%= error_tag f, :sets %>
+
+      <%= inputs_for f, :sets, fn sets_form -> %>
+        <div class="set-box">
+          <div class="field">
+            <%= label sets_form, :label, class: "label" %>
+            <div class="control">
+              <%= text_input sets_form, :label, class: "input" %>
+            </div>
+            <%= error_tag sets_form, :label %>
+          </div>
+
+          <div class="field">
+            <%= label sets_form, :rest, class: "label" %>
+            <div class="control">
+              <%= text_input sets_form, :rest, class: "input" %>
+            </div>
+            <%= error_tag sets_form, :rest %>
+          </div>
+
+          <div class="field">
+            <%= label sets_form, :reps, class: "label" %>
+            <div class="control">
+              <%= text_input sets_form, :reps, class: "input" %>
+            </div>
+            <%= error_tag sets_form, :reps %>
+          </div>
+
+          <fieldset>
+            <legend class="title is-6">Intervals</legend>
+
+            <%= error_tag sets_form, :intervals %>
+
+            <%= inputs_for sets_form, :intervals, fn intervals_form -> %>
+              <div class="interval-box">
+                <div class="field">
+                  <%= label intervals_form, :label, class: "label" %>
+                  <div class="control">
+                    <%= text_input intervals_form, :label, class: "input" %>
+                  </div>
+                  <%= error_tag intervals_form, :label %>
+                </div>
+
+                <div class="field">
+                  <%= label intervals_form, :duration, class: "label" %>
+                  <div class="control">
+                    <%= text_input intervals_form, :duration, class: "input" %>
+                  </div>
+                  <%= error_tag intervals_form, :duration %>
+                </div>
+              </div>
+            <% end %>
+
+            <div class="field">
+              <p class="control">
+                <a href="#" phx-click="add_interval" phx-value-set-index="<%= sets_form.index %>" class="button is-small">
+                  Add Interval
+                </a>
+              </p>
+            </div>
+          </fieldset>
+        </div>
+      <% end %>
+    </fieldset>
+
+    <div class="field">
+      <p class="control">
+        <a href="#" phx-click="add_set" class="button is-small">Add Set</a>
+      </p>
+    </div>
+
+    <div class="field is-grouped">
+      <p class="control">
+        <%= submit disabled: !@workout.valid?, class: "button is-primary"  do %>
+          <span>Submit</span>
+          <span class="icon">
+            <i class="fas fa-fist-raised"></i>
+          </span>
+        <% end %>
+      </p>
+      <p class="control">
+        <a href="#" phx-click="reset" class="button is-danger">
+          <span>Reset</span>
+          <span class="icon">
+            <i class="fas fa-bomb"></i>
+          </span>
+        </a>
+      </p>
+    </div>
+  </form>
+</div>

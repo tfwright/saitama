@@ -11,8 +11,7 @@
     </div>
 
     <fieldset id="set-list">
-      <legend class="title is-5">Sets</legend>
-      <%= error_tag f, :sets %>
+      <legend class="title is-5">Sets <%= error_tag f, :sets %></legend>
 
       <%= inputs_for f, :sets, fn sets_form -> %>
         <div class="set-box">
@@ -24,28 +23,30 @@
             </a>
           </div>
 
-          <div class="field">
-            <%= label sets_form, :label, class: "label" %>
-            <div class="control">
-              <%= text_input sets_form, :label, class: "input" %>
+          <div class="columns">
+            <div class="column field">
+              <%= label sets_form, :label, class: "label" %>
+              <div class="control">
+                <%= text_input sets_form, :label, class: "input" %>
+              </div>
+              <%= error_tag sets_form, :label %>
             </div>
-            <%= error_tag sets_form, :label %>
-          </div>
 
-          <div class="field">
-            <%= label sets_form, :rest, class: "label" %>
-            <div class="control">
-              <%= text_input sets_form, :rest, class: "input" %>
+            <div class="column field">
+              <%= label sets_form, :rest, class: "label" %>
+              <div class="control">
+                <%= text_input sets_form, :rest, class: "input" %>
+              </div>
+              <%= error_tag sets_form, :rest %>
             </div>
-            <%= error_tag sets_form, :rest %>
-          </div>
 
-          <div class="field">
-            <%= label sets_form, :reps, class: "label" %>
-            <div class="control">
-              <%= text_input sets_form, :reps, class: "input" %>
+            <div class="column field">
+              <%= label sets_form, :reps, class: "label" %>
+              <div class="control">
+                <%= text_input sets_form, :reps, class: "input" %>
+              </div>
+              <%= error_tag sets_form, :reps %>
             </div>
-            <%= error_tag sets_form, :reps %>
           </div>
 
           <fieldset>
@@ -63,20 +64,22 @@
                   </a>
                 </div>
 
-                <div class="field">
-                  <%= label intervals_form, :label, class: "label" %>
-                  <div class="control">
-                    <%= text_input intervals_form, :label, class: "input" %>
+                <div class="columns">
+                  <div class="column field">
+                    <%= label intervals_form, :label, class: "label" %>
+                    <div class="control">
+                      <%= text_input intervals_form, :label, class: "input" %>
+                    </div>
+                    <%= error_tag intervals_form, :label %>
                   </div>
-                  <%= error_tag intervals_form, :label %>
-                </div>
 
-                <div class="field">
-                  <%= label intervals_form, :duration, class: "label" %>
-                  <div class="control">
-                    <%= text_input intervals_form, :duration, class: "input" %>
+                  <div class="column field">
+                    <%= label intervals_form, :duration, class: "label" %>
+                    <div class="control">
+                      <%= text_input intervals_form, :duration, class: "input" %>
+                    </div>
+                    <%= error_tag intervals_form, :duration %>
                   </div>
-                  <%= error_tag intervals_form, :duration %>
                 </div>
               </div>
             <% end %>

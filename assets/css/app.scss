@@ -5,6 +5,10 @@
 
 @import "../../deps/phoenix_live_view/assets/css/live_view.css";
 
+#set-list {
+  padding: 15px;
+}
+
 .set-box {
   border: solid gray 1px;
   border-radius: 5px;

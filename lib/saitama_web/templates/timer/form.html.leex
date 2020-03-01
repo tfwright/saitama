@@ -12,11 +12,18 @@
 
     <fieldset id="set-list">
       <legend class="title is-5">Sets</legend>
-
       <%= error_tag f, :sets %>
 
       <%= inputs_for f, :sets, fn sets_form -> %>
         <div class="set-box">
+          <div class="is-clearfix">
+            <a class="button is-small is-pulled-right" phx-click="remove_set" phx-value-set-index="<%= sets_form.index %>">
+              <span class="icon is-small">
+                <i class="fas fa-backspace"></i>
+              </span>
+            </a>
+          </div>
+
           <div class="field">
             <%= label sets_form, :label, class: "label" %>
             <div class="control">
@@ -48,6 +55,14 @@
 
             <%= inputs_for sets_form, :intervals, fn intervals_form -> %>
               <div class="interval-box">
+                <div class="is-clearfix">
+                  <a class="button is-small is-pulled-right" phx-click="remove_interval" phx-value-interval-index="<%= intervals_form.index %>">
+                    <span class="icon is-small">
+                      <i class="fas fa-backspace"></i>
+                    </span>
+                  </a>
+                </div>
+
                 <div class="field">
                   <%= label intervals_form, :label, class: "label" %>
                   <div class="control">

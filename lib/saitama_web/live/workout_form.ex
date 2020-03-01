@@ -49,6 +49,18 @@ defmodule SaitamaWeb.Live.WorkoutForm do
     {:noreply, assign(socket, :workout, new_workout)}
   end
 
+  def handle_event("remove_set", %{"set-index" => index}, socket) do
+    new_workout =
+      socket.assigns.workout
+      |> Ecto.Changeset.put_embed(
+        :sets,
+        Ecto.Changeset.get_change(socket.assigns.workout, :sets, [])
+        |> List.delete_at(String.to_integer(index))
+      )
+
+    {:noreply, assign(socket, :workout, new_workout)}
+  end
+
   def handle_event("add_interval", %{"set-index" => index} = interval, socket) do
     new_sets =
       socket.assigns.workout.changes.sets
@@ -59,6 +71,30 @@ defmodule SaitamaWeb.Live.WorkoutForm do
           |> Ecto.Changeset.put_embed(
             :intervals,
             Ecto.Changeset.get_change(set, :intervals, []) ++ [%{}]
+          )
+        else
+          set
+        end
+      end)
+
+    new_workout =
+      socket.assigns.workout
+      |> Ecto.Changeset.put_embed(:sets, new_sets)
+
+    {:noreply, assign(socket, :workout, new_workout)}
+  end
+
+  def handle_event("remove_interval", %{"interval-index" => index}, socket) do
+    new_sets =
+      socket.assigns.workout.changes.sets
+      |> Enum.with_index()
+      |> Enum.map(fn {set, i} ->
+        if i == String.to_integer(index) do
+          set
+          |> Ecto.Changeset.put_embed(
+            :intervals,
+            Ecto.Changeset.get_change(set, :intervals, [])
+            |> List.delete_at(String.to_integer(index))
           )
         else
           set

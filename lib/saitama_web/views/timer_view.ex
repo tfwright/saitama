@@ -40,4 +40,24 @@ defmodule SaitamaWeb.TimerView do
 
     "#{min}:#{rem_sec |> Integer.to_string() |> String.pad_leading(2, "0")}"
   end
+
+  def current_remaining_duration(assigns) do
+    current_interval(assigns)
+    |> Map.get("remaining_duration", 0)
+  end
+
+  def current_remaining_rest(assigns) do
+    current_set(assigns)
+    |> Map.get("remaining_rest")
+  end
+
+  def current_interval(%{current_interval_index: current_interval_index} = assigns) do
+    current_set(assigns)
+    |> Map.get("intervals")
+    |> Enum.at(current_interval_index)
+  end
+
+  def current_set(%{sets: sets, current_set_index: current_set_index}) do
+    Enum.at(sets, current_set_index)
+  end
 end

@@ -12,8 +12,8 @@ defmodule SaitamaWeb.Live.Timer do
       socket
       |> assign(:name, workout.name)
       |> assign(:sets, extract_timer_data(workout.sets))
-      |> assign(:current_set, 0)
-      |> assign(:current_interval, 0)
+      |> assign(:current_set_index, 0)
+      |> assign(:current_interval_index, 0)
       |> assign(:status, "ready")
 
     {:ok, socket}
@@ -43,8 +43,8 @@ defmodule SaitamaWeb.Live.Timer do
     socket =
       assign(socket, :sets, new_sets)
       |> assign(:status, "ready")
-      |> assign(:current_set, 0)
-      |> assign(:current_interval, 0)
+      |> assign(:current_set_index, 0)
+      |> assign(:current_interval_index, 0)
 
     {:noreply, socket}
   end
@@ -56,96 +56,106 @@ defmodule SaitamaWeb.Live.Timer do
 
         assign(socket, :status, "finished")
       else
-        current_set = socket.assigns.current_set
-        current_interval = socket.assigns.current_interval
+        current_set_index = socket.assigns.current_set_index
+        current_interval_index = socket.assigns.current_interval_index
 
         set_to_advance =
           socket.assigns.sets
-          |> Enum.at(current_set)
+          |> Enum.at(current_set_index)
 
         interval_to_advance =
           set_to_advance
           |> Map.fetch!("intervals")
-          |> Enum.at(current_interval)
+          |> Enum.at(current_interval_index)
 
         {advanced_set, new_set, new_interval} =
-          advance(set_to_advance, current_set, interval_to_advance, current_interval)
+          advance(set_to_advance, current_set_index, interval_to_advance, current_interval_index)
 
         new_sets =
           socket.assigns.sets
-          |> List.replace_at(current_set, advanced_set)
+          |> List.replace_at(current_set_index, advanced_set)
 
         socket
         |> assign(:sets, new_sets)
-        |> assign(:current_set, new_set)
-        |> assign(:current_interval, new_interval)
+        |> assign(:current_set_index, new_set)
+        |> assign(:current_interval_index, new_interval)
       end
 
     {:noreply, socket}
   end
 
-  defp advance(%{"remaining_rest" => rest} = set, current_set, interval, current_interval)
+  defp advance(
+         %{"remaining_rest" => rest} = set,
+         current_set_index,
+         interval,
+         current_interval_index
+       )
        when rest > 0 do
     set =
       set
       |> Map.update!("remaining_rest", &(&1 - 1))
 
-    {set, current_set, current_interval}
+    {set, current_set_index, current_interval_index}
   end
 
-  defp advance(%{"remaining_rest" => 1} = set, current_set, interval, current_interval) do
+  defp advance(
+         %{"remaining_rest" => 1} = set,
+         current_set_index,
+         interval,
+         current_interval_index
+       ) do
     set =
       set
       |> Map.replace!("remaining_rest", 0)
 
-    advance(set, current_set, interval, current_interval)
+    advance(set, current_set_index, interval, current_interval_index)
   end
 
   defp advance(
          set,
-         current_set,
+         current_set_index,
          %{"remaining_duration" => 1} = interval,
-         current_interval
+         current_interval_index
        ) do
     set =
       set
       |> Map.update!("intervals", fn intervals ->
         intervals
-        |> List.update_at(current_interval, fn interval ->
+        |> List.update_at(current_interval_index, fn interval ->
           interval |> Map.replace!("remaining_duration", 0)
         end)
       end)
       |> Map.replace!("remaining_rest", Map.fetch!(set, "rest"))
 
-    {set, current_set, current_interval}
+    {set, current_set_index, current_interval_index}
   end
 
   defp advance(
          set,
-         current_set,
+         current_set_index,
          %{"remaining_duration" => remaining_duration} = interval,
-         current_interval
+         current_interval_index
        )
        when remaining_duration > 1 do
     set =
       set
       |> Map.update!("intervals", fn intervals ->
         intervals
-        |> List.update_at(current_interval, fn interval ->
+        |> List.update_at(current_interval_index, fn interval ->
           interval |> Map.update!("remaining_duration", &(&1 - 1))
         end)
       end)
 
-    {set, current_set, current_interval}
+    {set, current_set_index, current_interval_index}
   end
 
   defp advance(
          set,
-         current_set,
+         current_set_index,
          interval,
-         current_interval
+         current_interval_index
        ) do
-    {set, current_set, current_interval} =
+    {set, current_set_index, current_interval_index} =
       set
       |> Map.fetch!("intervals")
       |> Enum.find_index(&(Map.fetch!(&1, "remaining_duration") > 0))
@@ -155,7 +165,7 @@ defmodule SaitamaWeb.Live.Timer do
           |> Map.fetch!("remaining_reps")
           |> case do
             0 ->
-              {set, current_set + 1}
+              {set, current_set_index + 1}
 
             n ->
               set
@@ -165,12 +175,12 @@ defmodule SaitamaWeb.Live.Timer do
               end)
               |> List.wrap()
               |> List.to_tuple()
-              |> Tuple.append(current_set)
+              |> Tuple.append(current_set_index)
           end
           |> Tuple.append(0)
 
         i ->
-          {set, current_set, i}
+          {set, current_set_index, i}
       end
   end
 

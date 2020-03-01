@@ -14,7 +14,7 @@
           </h3>
           <div class="list">
             <%= for {%{"label" => label, "duration" => duration, "remaining_duration" => remaining}, i} <- intervals |> Enum.with_index do %>
-              <p class="list-item <%= if @current_set == set_index && @current_interval == i, do: "is-active" %>">
+              <p class="list-item <%= if @current_set_index == set_index && @current_interval_index == i, do: "is-active" %>">
                 <%= label %>: <%= format_min_secs(duration) %>
               </p>
             <% end %>
@@ -26,17 +26,17 @@
       </div>
     </div>
     <%= if @status == "active" || @status == "stopped" do %>
-      <div class="column has-text-centered <%= if Enum.at(@sets, @current_set) |> Map.get("remaining_rest") > 0, do: "resting" %>" id="clock">
-        <%= if Enum.at(@sets, @current_set) |> Map.get("remaining_rest") > 0 do %>
-          <%= if Enum.at(@sets, @current_set) |> Map.get("remaining_rest") == 1 do %>
+      <div class="column has-text-centered <%= if current_remaining_rest(assigns) > 0, do: "resting" %>" id="clock">
+        <%= if current_remaining_rest(assigns) > 0 do %>
+          <%= if current_remaining_rest(assigns) == 1 do %>
             <span id="beeper" phx-hook="Beeper"></span>
           <% end %>
-          <%= Enum.at(@sets, @current_set) |> Map.get("remaining_rest") |> format_min_secs %>
+          <%= current_remaining_rest(assigns) |> format_min_secs %>
         <% else %>
-          <%= if Enum.at(@sets, @current_set) |> Map.get("intervals") |> Enum.at(@current_interval) |> Map.get("remaining_duration", 0) == 1 do %>
+          <%= if current_remaining_duration(assigns) == 1 do %>
             <span id="beeper" phx-hook="Beeper"></span>
           <% end %>
-          <%= Enum.at(@sets, @current_set) |> Map.get("intervals") |> Enum.at(@current_interval) |> Map.get("remaining_duration", 0) |> format_min_secs %>
+          <%= current_remaining_duration(assigns) |> format_min_secs %>
         <% end %>
       </div>
     <% end %>

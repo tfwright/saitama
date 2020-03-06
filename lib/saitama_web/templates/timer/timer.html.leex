@@ -9,12 +9,12 @@
           <h3 class="title is-6">
             <%= label %>
             <%= if reps > 0 do %>
-            <small>x<%= reps %></small>
+              <small><%= (current_set(assigns) |> Map.fetch!("reps")) - (current_set(assigns) |> Map.fetch!("remaining_reps")) %>/<%= current_set(assigns) |> Map.fetch!("reps")%> </small>
             <% end %>
           </h3>
           <div class="list">
             <%= for {%{"label" => label, "duration" => duration, "remaining_duration" => remaining}, i} <- intervals |> Enum.with_index do %>
-              <p class="list-item <%= if @current_set_index == set_index && @current_interval_index == i, do: "is-active" %>">
+              <p class="list-item <%= if @status != "ready" && current_remaining_rest(assigns) == 0 && @current_set_index == set_index && @current_interval_index == i, do: "is-active" %>">
                 <%= label %>: <%= format_min_secs(duration) %>
               </p>
             <% end %>
@@ -26,18 +26,27 @@
       </div>
     </div>
     <%= if @status == "active" || @status == "stopped" do %>
-      <div class="column has-text-centered <%= if current_remaining_rest(assigns) > 0, do: "resting" %>" id="clock">
-        <%= if current_remaining_rest(assigns) > 0 do %>
-          <%= if current_remaining_rest(assigns) == 1 do %>
-            <span id="beeper" phx-hook="Beeper"></span>
+      <div class="column has-text-centered">
+        <div class="<%= if current_remaining_rest(assigns) > 0, do: "resting" %>">
+          <%= if current_remaining_rest(assigns) > 0 do %>
+            <%= if current_remaining_rest(assigns) == 1 do %>
+              <span id="beeper" phx-hook="Beeper"></span>
+            <% end %>
+            <div id="clock">
+              <%= current_remaining_rest(assigns) |> format_min_secs %>
+            </div>
+          <% else %>
+            <div>
+              <%= current_interval(assigns) |> Map.fetch!("label") %>
+            </div>
+            <%= if current_remaining_duration(assigns) == 1 do %>
+              <span id="beeper" phx-hook="Beeper"></span>
+            <% end %>
+            <div id="clock">
+              <%= current_remaining_duration(assigns) |> format_min_secs %>
+            </div>
           <% end %>
-          <%= current_remaining_rest(assigns) |> format_min_secs %>
-        <% else %>
-          <%= if current_remaining_duration(assigns) == 1 do %>
-            <span id="beeper" phx-hook="Beeper"></span>
-          <% end %>
-          <%= current_remaining_duration(assigns) |> format_min_secs %>
-        <% end %>
+        </div>
       </div>
     <% end %>
   </div>

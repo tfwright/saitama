@@ -1,6 +1,9 @@
+<pre><%= inspect @workout %></pre>
+
 <div class="container">
   <h3 class="title is-3">Create a new workout</h3>
   <%= f = form_for @workout, "#", [phx_change: :validate, phx_submit: :save] %>
+  <pre><%= inspect f %></pre>
   <form>
     <div class="field">
       <%= label f, :name, class: "label" %>

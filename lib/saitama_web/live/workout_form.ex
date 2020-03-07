@@ -70,7 +70,7 @@ defmodule SaitamaWeb.Live.WorkoutForm do
           set
           |> Ecto.Changeset.put_embed(
             :intervals,
-            Ecto.Changeset.get_change(set, :intervals, []) ++ [%{}]
+            Ecto.Changeset.get_change(set, :intervals, []) ++ [build_interval]
           )
         else
           set
@@ -115,6 +115,10 @@ defmodule SaitamaWeb.Live.WorkoutForm do
   end
 
   defp build_set do
-    %{intervals: []}
+    Set.changeset(%Set{}, %{intervals: []})
+  end
+
+  defp build_interval do
+    Interval.changeset(%Interval{}, %{})
   end
 end

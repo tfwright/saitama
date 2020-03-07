@@ -84,17 +84,21 @@ defmodule SaitamaWeb.Live.WorkoutForm do
     {:noreply, assign(socket, :workout, new_workout)}
   end
 
-  def handle_event("remove_interval", %{"interval-index" => index}, socket) do
+  def handle_event(
+        "remove_interval",
+        %{"interval-index" => interval_index, "set-index" => set_index},
+        socket
+      ) do
     new_sets =
       socket.assigns.workout.changes.sets
       |> Enum.with_index()
       |> Enum.map(fn {set, i} ->
-        if i == String.to_integer(index) do
+        if i == String.to_integer(set_index) do
           set
           |> Ecto.Changeset.put_embed(
             :intervals,
             Ecto.Changeset.get_change(set, :intervals, [])
-            |> List.delete_at(String.to_integer(index))
+            |> List.delete_at(String.to_integer(interval_index))
           )
         else
           set

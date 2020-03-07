@@ -90,7 +90,7 @@ defmodule SaitamaWeb.Live.Timer do
          interval,
          current_interval_index
        )
-       when rest > 0 do
+       when rest > 1 do
     set =
       set
       |> Map.update!("remaining_rest", &(&1 - 1))
@@ -155,33 +155,32 @@ defmodule SaitamaWeb.Live.Timer do
          interval,
          current_interval_index
        ) do
-    {set, current_set_index, current_interval_index} =
-      set
-      |> Map.fetch!("intervals")
-      |> Enum.find_index(&(Map.fetch!(&1, "remaining_duration") > 0))
-      |> case do
-        nil ->
-          set
-          |> Map.fetch!("remaining_reps")
-          |> case do
-            0 ->
-              {set, current_set_index + 1}
+    set
+    |> Map.fetch!("intervals")
+    |> Enum.find_index(&(Map.fetch!(&1, "remaining_duration") > 0))
+    |> case do
+      nil ->
+        set
+        |> Map.fetch!("remaining_reps")
+        |> case do
+          0 ->
+            {set, current_set_index + 1}
 
-            n ->
-              set
-              |> Map.replace!("remaining_reps", n - 1)
-              |> Map.update!("intervals", fn intervals ->
-                intervals |> Enum.map(&build_interval/1)
-              end)
-              |> List.wrap()
-              |> List.to_tuple()
-              |> Tuple.append(current_set_index)
-          end
-          |> Tuple.append(0)
+          n ->
+            set
+            |> Map.replace!("remaining_reps", n - 1)
+            |> Map.update!("intervals", fn intervals ->
+              intervals |> Enum.map(&build_interval/1)
+            end)
+            |> List.wrap()
+            |> List.to_tuple()
+            |> Tuple.append(current_set_index)
+        end
+        |> Tuple.append(0)
 
-        i ->
-          {set, current_set_index, i}
-      end
+      i ->
+        {set, current_set_index, i}
+    end
   end
 
   defp extract_timer_data(sets) do

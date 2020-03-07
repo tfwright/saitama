@@ -8,9 +8,14 @@ defmodule SaitamaWeb.ErrorHelpers do
   @doc """
   Generates tag for inlined form input errors.
   """
-  def error_tag(form, field) do
+  def error_tag(form, field, opts \\ []) do
+    %{element: element} = Enum.into(opts, %{element: true})
+
     Enum.map(Keyword.get_values(form.errors, field), fn error ->
-      content_tag(:span, translate_error(error), class: "help is-danger")
+      content_tag(:span, translate_error(error),
+        class: "help is-danger",
+        data: [phx_error_for: if(element, do: input_id(form, field), else: nil)]
+      )
     end)
   end
 

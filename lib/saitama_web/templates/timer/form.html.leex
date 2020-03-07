@@ -11,7 +11,7 @@
     </div>
 
     <fieldset id="set-list">
-      <legend class="title is-5">Sets <%= error_tag f, :sets %></legend>
+      <legend class="title is-5">Sets <%= error_tag f, :sets, element: false %></legend>
 
       <%= inputs_for f, :sets, fn sets_form -> %>
         <div class="set-box">
@@ -52,7 +52,7 @@
           <fieldset>
             <legend class="title is-6">Intervals</legend>
 
-            <%= error_tag sets_form, :intervals %>
+            <%= error_tag sets_form, :intervals, element: false %>
 
             <%= inputs_for sets_form, :intervals, fn intervals_form -> %>
               <div class="interval-box">

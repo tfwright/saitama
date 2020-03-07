@@ -43,7 +43,7 @@ defmodule SaitamaWeb.Live.WorkoutForm do
       socket.assigns.workout
       |> Ecto.Changeset.put_embed(
         :sets,
-        Ecto.Changeset.get_change(socket.assigns.workout, :sets, []) ++ [build_set]
+        Ecto.Changeset.get_change(socket.assigns.workout, :sets, []) ++ [%Set{}]
       )
 
     {:noreply, assign(socket, :workout, new_workout)}
@@ -70,7 +70,7 @@ defmodule SaitamaWeb.Live.WorkoutForm do
           set
           |> Ecto.Changeset.put_embed(
             :intervals,
-            Ecto.Changeset.get_change(set, :intervals, []) ++ [build_interval]
+            Ecto.Changeset.get_change(set, :intervals, []) ++ [%Interval{}]
           )
         else
           set
@@ -116,13 +116,5 @@ defmodule SaitamaWeb.Live.WorkoutForm do
     socket = assign(socket, :workout, Workout.changeset(%Workout{}, %{sets: []}))
 
     {:noreply, socket}
-  end
-
-  defp build_set do
-    Set.changeset(%Set{}, %{intervals: []})
-  end
-
-  defp build_interval do
-    Interval.changeset(%Interval{}, %{})
   end
 end

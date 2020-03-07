@@ -20,14 +20,17 @@ defmodule SaitamaWeb.Live.WorkoutForm do
   end
 
   def handle_event("save", %{"workout" => params}, socket) do
-    {:ok, workout} =
-      Workout.changeset(%Workout{}, params)
-      |> Ecto.Changeset.apply_action(:insert)
+    case Workout.changeset(%Workout{}, params)
+         |> Ecto.Changeset.apply_action(:insert) do
+      {:ok, workout} ->
+        Saitama.WorkoutStore.add(workout)
 
-    Saitama.WorkoutStore.add(workout)
+        {:noreply,
+         live_redirect(socket, to: Routes.live_path(socket, SaitamaWeb.Live.Timer, workout.uuid))}
 
-    {:noreply,
-     live_redirect(socket, to: Routes.live_path(socket, SaitamaWeb.Live.Timer, workout.uuid))}
+      {:error, changeset} ->
+        {:noreply, assign(socket, workout: changeset)}
+    end
   end
 
   def handle_event("validate", %{"workout" => params}, socket) do

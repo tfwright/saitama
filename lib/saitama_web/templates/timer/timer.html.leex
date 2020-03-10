@@ -9,7 +9,7 @@
           <h3 class="title is-6">
             <%= label %>
             <%= if reps > 0 do %>
-              <small><%= (current_set(assigns) |> Map.fetch!("reps")) - (current_set(assigns) |> Map.fetch!("remaining_reps")) %>/<%= current_set(assigns) |> Map.fetch!("reps")%> </small>
+              <small><%= (current_set(assigns) |> Map.fetch!("reps")) - (current_set(assigns) |> Map.fetch!("remaining_reps")) %> / <%= reps %></small>
             <% end %>
           </h3>
           <div class="list">

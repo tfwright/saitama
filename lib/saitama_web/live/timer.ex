@@ -15,6 +15,7 @@ defmodule SaitamaWeb.Live.Timer do
       |> assign(:current_set_index, 0)
       |> assign(:current_interval_index, 0)
       |> assign(:status, "ready")
+      |> assign(:total_elapsed, 0)
 
     {:ok, socket}
   end
@@ -79,6 +80,7 @@ defmodule SaitamaWeb.Live.Timer do
         |> assign(:sets, new_sets)
         |> assign(:current_set_index, new_set)
         |> assign(:current_interval_index, new_interval)
+        |> assign(:total_elapsed, socket.assigns.total_elapsed + 1)
       end
 
     {:noreply, socket}

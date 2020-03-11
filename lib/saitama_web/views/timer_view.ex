@@ -28,6 +28,18 @@ defmodule SaitamaWeb.TimerView do
 
   def control_buttons(_), do: nil
 
+  def total_duration(sets) when is_list(sets) do
+    sets
+    |> Enum.map(&total_duration/1)
+    |> Enum.sum()
+  end
+
+  def total_duration(%{"intervals" => intervals, "reps" => reps, "rest" => rest}) do
+    reps *
+      Enum.reduce(intervals, 0, fn %{"duration" => d}, sum -> sum + d end) +
+      (reps - 1) * rest
+  end
+
   def format_min_secs(secs) when is_binary(secs),
     do: secs |> String.to_integer() |> format_min_secs
 

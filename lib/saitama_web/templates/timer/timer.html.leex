@@ -1,16 +1,23 @@
 <div id="timer">
   <div class="columns">
-    <div class="column is-one-fifth"><h1 class="title is-1"><%= @name %></h1></div>
+    <div class="column is-one-fifth">
+      <h1 class="title is-1">
+        <%= @name %>
+      </h1>
+    </div>
   </div>
   <div class="columns">
     <div class="column is-one-fifth">
-      <%= for {%{"label" => label, "intervals" => intervals, "reps" => reps, "remaining_rest" => remaining_rest}, set_index} <- @sets |> Enum.with_index do %>
+      <%= for {%{"label" => label, "intervals" => intervals, "reps" => reps, "remaining_rest" => remaining_rest} = set, set_index} <- @sets |> Enum.with_index do %>
         <div class="card section">
           <h3 class="title is-6">
             <%= label %>
             <%= if reps > 0 do %>
               <small>(x<%= reps %>)</small>
             <% end %>
+            <span class="is-pulled-right">
+              <%= set |> total_duration |> format_min_secs %>
+            </span>
           </h3>
           <div class="list">
             <%= for {%{"label" => label, "duration" => duration, "remaining_duration" => remaining}, i} <- intervals |> Enum.with_index do %>
@@ -48,6 +55,7 @@
             </div>
           <% end %>
         </div>
+        <%= @total_elapsed |> format_min_secs %> / <%= @sets |> total_duration |> format_min_secs %>
       </div>
     <% end %>
   </div>

@@ -38,6 +38,7 @@
           <% else %>
             <div>
               <%= current_interval(assigns) |> Map.fetch!("label") %>
+              (<%= (current_set(assigns) |> Map.fetch!("reps")) - (current_set(assigns) |> Map.fetch!("remaining_reps")) %>)
             </div>
             <%= if current_remaining_duration(assigns) == 1 do %>
               <span id="beeper" phx-hook="Beeper"></span>

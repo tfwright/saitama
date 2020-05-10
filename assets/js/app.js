@@ -59,3 +59,13 @@ Hooks.Beeper = {
 let liveSocket = new LiveSocket("/live", Socket, { params: { _csrf_token: csrfToken }, hooks: Hooks })
 
 liveSocket.connect()
+
+$(() => {
+  $("button.modal-close").click(e => {
+    $(e.target).parents(".modal").removeClass("is-active")
+  })
+
+  $("#export-workout-icon").click(() => {
+    $("#export-workout-modal").addClass("is-active")
+  })
+})

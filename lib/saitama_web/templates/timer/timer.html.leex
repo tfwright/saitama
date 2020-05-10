@@ -2,8 +2,23 @@
   <div class="columns">
     <div class="column is-one-fifth">
       <h1 class="title is-1">
-        <%= @name %>
+        <%= @workout.name %>
       </h1>
+      <a class="icon" id="export-workout-icon">
+        <i class="fas fa-download"></i>
+      </a>
+    </div>
+    <div class="modal" id="export-workout-modal">
+      <div class="modal-background"></div>
+      <div class="modal-content">
+        <div class="box">
+          <h1>JSON</h1>
+          <pre>
+            <%= @workout |> Jason.encode! %>
+          </pre>
+        </div>
+      </div>
+      <button class="modal-close is-large" aria-label="close"></button>
     </div>
   </div>
   <div class="columns">

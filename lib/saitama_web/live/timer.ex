@@ -10,7 +10,7 @@ defmodule SaitamaWeb.Live.Timer do
 
     socket =
       socket
-      |> assign(:name, workout.name)
+      |> assign(:workout, workout)
       |> assign(:sets, extract_timer_data(workout.sets))
       |> assign(:current_set_index, 0)
       |> assign(:current_interval_index, 0)

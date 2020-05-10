@@ -3,6 +3,8 @@ defmodule Saitama.Interval do
   import Ecto.Changeset
   alias Saitama.Interval
 
+  @derive Jason.Encoder
+
   @primary_key false
   embedded_schema do
     field(:duration, :integer)

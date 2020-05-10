@@ -19,6 +19,38 @@ defmodule SaitamaWeb.Live.WorkoutForm do
     SaitamaWeb.TimerView.render("form.html", assigns)
   end
 
+  def handle_event("show_import", _params, socket) do
+    socket =
+      socket
+      |> assign(:importing, true)
+
+    {:noreply, socket}
+  end
+
+  def handle_event("close_import", _params, socket) do
+    socket =
+      socket
+      |> assign(:importing, false)
+
+    {:noreply, socket}
+  end
+
+  def handle_event("import", %{"json" => json}, socket) do
+    socket =
+      case Jason.decode(json) do
+        {:ok, workout} ->
+          socket
+          |> assign(:workout, Workout.changeset(%Workout{}, workout))
+          |> assign(:importing, false)
+
+        {:error, _error} ->
+          socket
+          |> assign(:import_error, "couldn't import JSON")
+      end
+
+    {:noreply, socket}
+  end
+
   def handle_event("save", %{"workout" => params}, socket) do
     case Workout.changeset(%Workout{}, params)
          |> Ecto.Changeset.apply_action(:insert) do

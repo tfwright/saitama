@@ -3,6 +3,8 @@ defmodule Saitama.Workout do
   import Ecto.Changeset
   alias Saitama.{Workout, Set}
 
+  @derive Jason.Encoder
+
   @primary_key false
   embedded_schema do
     field(:uuid, Ecto.UUID)

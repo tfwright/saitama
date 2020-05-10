@@ -1,124 +1,159 @@
 <div class="container">
   <h3 class="title is-3">Create a new workout</h3>
-  <%= f = form_for @workout, "#", [phx_change: :validate, phx_submit: :save] %>
-  <form>
-    <div class="field">
-      <%= label f, :name, class: "label" %>
-      <div class="control">
-        <%= text_input f, :name, class: "input" %>
+
+  <div class="box">
+    <%= f = form_for @workout, "#", [phx_change: :validate, phx_submit: :save] %>
+    <form>
+      <div class="field">
+        <%= label f, :name, class: "label" %>
+        <div class="control">
+          <%= text_input f, :name, class: "input" %>
+        </div>
+        <%= error_tag f, :name %>
       </div>
-      <%= error_tag f, :name %>
-    </div>
 
-    <fieldset id="set-list">
-      <legend class="title is-5">Sets <%= error_tag f, :sets, element: false %></legend>
+      <fieldset id="set-list">
+        <legend class="title is-5">Sets <%= error_tag f, :sets, element: false %></legend>
 
-      <%= inputs_for f, :sets, fn sets_form -> %>
-        <div class="set-box">
-          <div class="is-clearfix">
-            <a class="button is-small is-pulled-right" phx-click="remove_set" phx-value-set-index="<%= sets_form.index %>">
-              <span class="icon is-small">
-                <i class="fas fa-backspace"></i>
-              </span>
-            </a>
-          </div>
-
-          <div class="columns">
-            <div class="column field">
-              <%= label sets_form, :label, class: "label" %>
-              <div class="control">
-                <%= text_input sets_form, :label, class: "input" %>
-              </div>
-              <%= error_tag sets_form, :label %>
+        <%= inputs_for f, :sets, fn sets_form -> %>
+          <div class="set-box">
+            <div class="is-clearfix">
+              <a class="button is-small is-pulled-right" phx-click="remove_set" phx-value-set-index="<%= sets_form.index %>">
+                <span class="icon is-small">
+                  <i class="fas fa-backspace"></i>
+                </span>
+              </a>
             </div>
 
-            <div class="column field">
-              <%= label sets_form, :rest, class: "label" %>
-              <div class="control">
-                <%= text_input sets_form, :rest, class: "input" %>
+            <div class="columns">
+              <div class="column field">
+                <%= label sets_form, :label, class: "label" %>
+                <div class="control">
+                  <%= text_input sets_form, :label, class: "input" %>
+                </div>
+                <%= error_tag sets_form, :label %>
               </div>
-              <%= error_tag sets_form, :rest %>
+
+              <div class="column field">
+                <%= label sets_form, :rest, class: "label" %>
+                <div class="control">
+                  <%= text_input sets_form, :rest, class: "input" %>
+                </div>
+                <%= error_tag sets_form, :rest %>
+              </div>
+
+              <div class="column field">
+                <%= label sets_form, :reps, class: "label" %>
+                <div class="control">
+                  <%= text_input sets_form, :reps, class: "input" %>
+                </div>
+                <%= error_tag sets_form, :reps %>
+              </div>
             </div>
 
-            <div class="column field">
-              <%= label sets_form, :reps, class: "label" %>
-              <div class="control">
-                <%= text_input sets_form, :reps, class: "input" %>
-              </div>
-              <%= error_tag sets_form, :reps %>
-            </div>
-          </div>
+            <fieldset>
+              <legend class="title is-6">Intervals</legend>
 
-          <fieldset>
-            <legend class="title is-6">Intervals</legend>
+              <%= error_tag sets_form, :intervals, element: false %>
 
-            <%= error_tag sets_form, :intervals, element: false %>
+              <%= inputs_for sets_form, :intervals, fn intervals_form -> %>
+                <div class="interval-box">
+                  <div class="is-clearfix">
+                    <a class="button is-small is-pulled-right" phx-click="remove_interval" phx-value-interval-index="<%= intervals_form.index %>" phx-value-set-index="<%= sets_form.index %>">
+                      <span class="icon is-small">
+                        <i class="fas fa-backspace"></i>
+                      </span>
+                    </a>
+                  </div>
 
-            <%= inputs_for sets_form, :intervals, fn intervals_form -> %>
-              <div class="interval-box">
-                <div class="is-clearfix">
-                  <a class="button is-small is-pulled-right" phx-click="remove_interval" phx-value-interval-index="<%= intervals_form.index %>" phx-value-set-index="<%= sets_form.index %>">
-                    <span class="icon is-small">
-                      <i class="fas fa-backspace"></i>
-                    </span>
+                  <div class="columns">
+                    <div class="column field">
+                      <%= label intervals_form, :label, class: "label" %>
+                      <div class="control">
+                        <%= text_input intervals_form, :label, class: "input" %>
+                      </div>
+                      <%= error_tag intervals_form, :label %>
+                    </div>
+
+                    <div class="column field">
+                      <%= label intervals_form, :duration, class: "label" %>
+                      <div class="control">
+                        <%= text_input intervals_form, :duration, class: "input" %>
+                      </div>
+                      <%= error_tag intervals_form, :duration %>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+
+              <div class="field">
+                <p class="control">
+                  <a href="#" phx-click="add_interval" phx-value-set-index="<%= sets_form.index %>" class="button is-small">
+                    Add Interval
                   </a>
-                </div>
-
-                <div class="columns">
-                  <div class="column field">
-                    <%= label intervals_form, :label, class: "label" %>
-                    <div class="control">
-                      <%= text_input intervals_form, :label, class: "input" %>
-                    </div>
-                    <%= error_tag intervals_form, :label %>
-                  </div>
-
-                  <div class="column field">
-                    <%= label intervals_form, :duration, class: "label" %>
-                    <div class="control">
-                      <%= text_input intervals_form, :duration, class: "input" %>
-                    </div>
-                    <%= error_tag intervals_form, :duration %>
-                  </div>
-                </div>
+                </p>
               </div>
-            <% end %>
+            </fieldset>
+          </div>
+        <% end %>
+      </fieldset>
 
+      <div class="field">
+        <p class="control">
+          <a href="#" phx-click="add_set" class="button is-small">Add Set</a>
+        </p>
+      </div>
+
+      <div class="field is-grouped">
+        <p class="control">
+          <%= submit class: "button is-primary"  do %>
+            <span>Save</span>
+            <span class="icon">
+              <i class="fas fa-fist-raised"></i>
+            </span>
+          <% end %>
+        </p>
+        <p class="control">
+          <a href="#" phx-click="reset" class="button is-danger">
+            <span>Reset</span>
+            <span class="icon">
+              <i class="fas fa-bomb"></i>
+            </span>
+          </a>
+        </p>
+      </div>
+    </form>
+  </div>
+
+  <div>
+    <small><a phx-click="show_import">Import from JSON</a></small>
+    <div class="modal <%= if assigns[:importing], do: "is-active" %>">
+      <div class="modal-background"></div>
+      <div class="modal-content">
+        <div class="box">
+          <form phx-submit="import">
             <div class="field">
+              <div class="control">
+                <textarea name="json" class="textarea <%= if assigns[:import_error], do: "is-danger" %>"></textarea>
+              </div>
+              <%= if assigns[:import_error] do %>
+                <p class="help is-danger"><%= @import_error %></p>
+              <% end %>
+            </div>
+            <div class="field is-grouped">
               <p class="control">
-                <a href="#" phx-click="add_interval" phx-value-set-index="<%= sets_form.index %>" class="button is-small">
-                  Add Interval
-                </a>
+                <%= submit class: "button is-primary"  do %>
+                  <span>Import</span>
+                  <span class="icon">
+                    <i class="fas fa-upload"></i>
+                  </span>
+                <% end %>
               </p>
             </div>
-          </fieldset>
+          </form>
         </div>
-      <% end %>
-    </fieldset>
-
-    <div class="field">
-      <p class="control">
-        <a href="#" phx-click="add_set" class="button is-small">Add Set</a>
-      </p>
+      </div>
+      <button class="modal-close is-large" aria-label="close" phx-click="close_import"></button>
     </div>
-
-    <div class="field is-grouped">
-      <p class="control">
-        <%= submit class: "button is-primary"  do %>
-          <span>Save</span>
-          <span class="icon">
-            <i class="fas fa-fist-raised"></i>
-          </span>
-        <% end %>
-      </p>
-      <p class="control">
-        <a href="#" phx-click="reset" class="button is-danger">
-          <span>Reset</span>
-          <span class="icon">
-            <i class="fas fa-bomb"></i>
-          </span>
-        </a>
-      </p>
-    </div>
-  </form>
+  </div>
 </div>

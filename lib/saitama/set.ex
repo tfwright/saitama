@@ -3,6 +3,8 @@ defmodule Saitama.Set do
   import Ecto.Changeset
   alias Saitama.{Set, Interval}
 
+  @derive Jason.Encoder
+
   @primary_key false
   embedded_schema do
     field(:label, :string)
